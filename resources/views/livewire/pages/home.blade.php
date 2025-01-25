@@ -13,7 +13,7 @@ state([
 
 ?>
 
-<div class="max-w-7xl w-full mx-auto py-10 space-y-6">
+<div class="max-w-7xl w-full mx-auto py-10 space-y-6 px-4">
     @if (Route::has('login'))
         <livewire:welcome.navigation/>
     @endif
