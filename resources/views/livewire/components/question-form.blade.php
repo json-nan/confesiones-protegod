@@ -12,8 +12,8 @@ state([
 ]);
 
 rules([
-    'title' => 'required|string|max:100',
-    'content' => 'required|string|max:3000',
+    'title' => 'required|string|max:200',
+    'content' => 'required|string|max:10000',
 ])->messages([
     'title.required' => 'Este campo es requerido.',
     'content.required' => 'Este campo es requerido.',
@@ -42,7 +42,7 @@ $submit = function () {
         </div>
         <div>
             <x-input-label for="content" value="Contenido"/>
-            <x-textarea-input maxlength="3000" wire:model.live="content" label="Content" class="w-full" rows="6"/>
+            <x-textarea-input maxlength="10000" wire:model.live="content" label="Content" class="w-full" rows="6"/>
             <x-input-error :messages="$errors->get('content')" class=""/>
         </div>
         <div class="flex justify-end">
