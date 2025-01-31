@@ -7,6 +7,7 @@ layout('layouts.app');
 
 state([
     'selectedTab' => 'questions-opened',
+    'unansweredQuestionsCount' => fn() => \App\Models\Question::open()->count(),
 ]);
 
 ?>
@@ -18,7 +19,12 @@ state([
             active-class="bg-primary rounded text-white"
             label-class="font-semibold"
             label-div-class="bg-primary/5 p-2 rounded">
-            <x-mary-tab name="questions-opened" label="Preguntas sin responder">
+            <x-mary-tab name="questions-opened">
+                <x-slot:label>
+                    Sin responder
+                    <x-mary-badge value="{{$unansweredQuestionsCount}}"
+                                  class="badge-secondary indicator-item text-white"/>
+                </x-slot:label>
                 <livewire:components.opened-questions-tab/>
             </x-mary-tab>
             <x-mary-tab name="questions-answered" label="Preguntas respondidas">
