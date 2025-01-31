@@ -4,7 +4,8 @@ use function Livewire\Volt\{state, rules};
 
 state([
     'question',
-    "answer_content" => ""
+    "answer_content" => "",
+    'blur' => true
 ]);
 
 rules([
@@ -27,15 +28,24 @@ $submit = function () {
 $ignore = function () {
     $this->question->update(['status' => \App\Enums\QuestionStatusEnum::IGNORED]);
 };
+
+$toggleBlur = function () {
+    $this->blur = !$this->blur;
+};
 ?>
 
 <div class="p-4 bg-[#1a1224] shadow-lg rounded-lg">
     <form class="space-y-2" wire:submit.prevent="submit">
-        <div>
-            <p class="text-2xl font-semibold text-white">
-                {{$question->title}}
-            </p>
-            <p class="whitespace-pre-line">
+        <div class="">
+            <div class="flex">
+                <p class="text-2xl font-semibold text-white">
+                    {{$question->title}}
+                </p>
+                <button type="button" class="ml-auto text-sm text-gray-400" wire:click="toggleBlur">
+                    {{$blur ? 'Mostrar' : 'Ocultar'}} contenido
+                </button>
+            </div>
+            <p class="whitespace-pre-line text-gray-200 {{$blur ? 'blur' : ''}}">
                 {{$question->content}}
             </p>
         </div>
