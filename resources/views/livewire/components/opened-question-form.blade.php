@@ -8,7 +8,7 @@ state([
 ]);
 
 rules([
-    'answer_content' => 'required|string|max:500'
+    'answer_content' => 'required|string|max:3000'
 ])->messages([
     'answer_content.required' => 'Este campo es requerido.',
 ]);
@@ -41,7 +41,7 @@ $ignore = function () {
         </div>
         <div>
             @if($question->status === \App\Enums\QuestionStatusEnum::OPEN)
-                <x-textarea-input class="w-full" wire:model="answer_content"/>
+                <x-textarea-input class="w-full" wire:model="answer_content" maxlength="3000"/>
                 <x-input-error :messages="$errors->get('answer_content')" class=""/>
             @else
                 <div class="bg-[#251a34] shadow-lg p-4 rounded-lg flex justify-between ">
