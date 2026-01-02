@@ -14,9 +14,6 @@ state([
 ?>
 
 <div class="max-w-7xl w-full mx-auto py-10 space-y-6 px-4">
-    @if (Route::has('login'))
-        <livewire:welcome.navigation/>
-    @endif
     <h1 class="text-4xl text-center text-white font-bold">El gato confesoso</h1>
     <img src="{{asset("images/images_10.jpg")}}" alt="protegod" class="rounded-full shadow-md mx-auto">
     <livewire:components.question-form/>
