@@ -64,7 +64,7 @@ $toggleBlur = function () {
         </div>
         <div>
             @if($question->status === \App\Enums\QuestionStatusEnum::OPEN)
-                <x-textarea-input class="w-full" wire:model="answer_content" maxlength="3000"/>
+                <textarea wire:model="answer_content" maxlength="3000" id="answer-textarea" class="w-full px-3 py-2 text-white bg-[#251a34] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
                 <x-input-error :messages="$errors->get('answer_content')" class=""/>
 
                 <div class="mt-4">
@@ -84,7 +84,7 @@ $toggleBlur = function () {
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                 </svg>
                                 <p class="text-sm text-gray-400"><span class="font-semibold">Click para subir</span> o arrastra una imagen</p>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF (Máx. 5MB)</p>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF (Máx. 5MB) - También puedes pegar imágenes en el texto</p>
                             </div>
                             <input type="file" class="hidden" accept="image/*" wire:model="image"/>
                         </label>
@@ -116,3 +116,40 @@ $toggleBlur = function () {
         @endif
     </form>
 </div>
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        const textarea = document.getElementById('answer-textarea');
+        
+        if (textarea) {
+            textarea.addEventListener('paste', (e) => {
+                const items = e.clipboardData?.items;
+                
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            
+                            const file = items[i].getAsFile();
+                            const maxSize = 5 * 1024 * 1024;
+                            
+                            if (file.size > maxSize) {
+                                alert('La imagen no puede ser mayor a 5MB');
+                                return;
+                            }
+                            
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            
+                            const fileInput = document.querySelector('input[type="file"][wire\\:model="image"]');
+                            if (fileInput) {
+                                fileInput.files = dataTransfer.files;
+                                fileInput.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
