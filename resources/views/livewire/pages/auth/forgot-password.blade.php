@@ -36,8 +36,13 @@ $sendPasswordResetLink = function () {
 
 ?>
 
-<div>
-    <div class="mb-4 text-sm text-gray-600">
+<div class="w-full max-w-md mx-auto px-4 sm:px-6 py-8">
+    <div class="mb-8 text-center space-y-2">
+        <h1 class="font-display font-extrabold text-ink text-2xl">Recuperar contraseña</h1>
+    </div>
+
+    <div class="panel p-6 sm:p-8">
+    <div class="mb-4 text-sm text-ink-muted">
         {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
     </div>
 
@@ -48,14 +53,15 @@ $sendPasswordResetLink = function () {
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-text-input wire:model="email" id="email" class="block mt-1.5 w-full" type="email" name="email" required autofocus />
+            <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
+        <div class="flex items-center justify-end mt-2">
+            <x-primary-button class="w-full justify-center py-3">
                 {{ __('Email Password Reset Link') }}
             </x-primary-button>
         </div>
     </form>
+    </div>
 </div>

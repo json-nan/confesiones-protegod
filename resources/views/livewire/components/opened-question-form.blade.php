@@ -1,38 +1,25 @@
 <?php
 
-use Livewire\WithFileUploads;
-use function Livewire\Volt\{state, rules, uses};
-
-uses([WithFileUploads::class]);
+use function Livewire\Volt\{state, rules};
 
 state([
     'question',
     "answer_content" => "",
     'blur' => true,
-    'image' => null
 ]);
 
 rules([
     'answer_content' => 'required|string|max:3000',
-    'image' => 'nullable|image|max:5120'
 ])->messages([
     'answer_content.required' => 'Este campo es requerido.',
-    'image.image' => 'El archivo debe ser una imagen.',
-    'image.max' => 'La imagen no puede ser mayor a 5MB.',
 ]);
 
 $submit = function () {
     $this->validate();
 
-    $imagePath = null;
-    if ($this->image) {
-        $imagePath = $this->image->store('answers', 'public');
-    }
-
     $this->question->answers()->create([
         'content' => $this->answer_content,
         'user_id' => auth()->id(),
-        'image' => $imagePath
     ]);
 
     $this->question->update(['status' => \App\Enums\QuestionStatusEnum::ANSWERED]);
@@ -47,109 +34,80 @@ $toggleBlur = function () {
 };
 ?>
 
-<div class="p-4 bg-[#1a1224] shadow-lg rounded-lg">
-    <form class="space-y-2" wire:submit.prevent="submit">
-        <div class="">
-            <div class="flex">
-                <p class="text-2xl font-semibold text-white">
-                    {{$question->title}}
-                </p>
-                <button type="button" class="ml-auto text-sm text-gray-400" wire:click="toggleBlur">
-                    {{$blur ? 'Mostrar' : 'Ocultar'}} contenido
+<div class="panel p-5 space-y-4">
+    <div class="flex items-start gap-3">
+        <span class="grid place-items-center w-9 h-9 rounded-lg bg-brand-tint text-brand-soft shrink-0">
+            <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/>
+            </svg>
+        </span>
+        <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+                <h3 class="font-display font-bold text-ink text-lg leading-snug break-words">{{ $question->title }}</h3>
+                <button type="button" class="chip-muted hover:bg-panel-elevated transition-colors shrink-0" wire:click="toggleBlur">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        @if ($blur)
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        @else
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/>
+                        @endif
+                    </svg>
+                    {{ $blur ? 'Mostrar' : 'Ocultar' }}
                 </button>
             </div>
-            <p class="whitespace-pre-line text-gray-200 {{$blur ? 'blur' : ''}}">
-                {{$question->content}}
+            <p class="mt-1 whitespace-pre-line text-ink leading-relaxed transition-all {{ $blur ? 'blur-sm select-none' : '' }}">
+                {{ $question->content }}
             </p>
+            <div class="mt-2 flex items-center gap-1.5 text-xs text-ink-faint">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+                <time title="{{ $question->created_at->format('d M Y, H:i') }}">{{ $question->created_at->diffForHumans() }}</time>
+            </div>
         </div>
-        <div>
-            @if($question->status === \App\Enums\QuestionStatusEnum::OPEN)
-                <textarea wire:model="answer_content" maxlength="3000" id="answer-textarea" class="w-full px-3 py-2 text-white bg-[#251a34] border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
-                <x-input-error :messages="$errors->get('answer_content')" class=""/>
+    </div>
 
-                <div class="mt-4">
-                    @if($image)
-                        <div class="relative inline-block">
-                            <img src="{{ $image->temporaryUrl() }}" class="max-w-full h-48 object-cover rounded-lg"/>
-                            <button type="button" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600" wire:click="$set('image', null)">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                    @else
-                        <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-[#251a34] hover:bg-[#2f2340]">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <svg class="w-6 h-6 mb-2 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                </svg>
-                                <p class="text-sm text-gray-400"><span class="font-semibold">Click para subir</span> o arrastra una imagen</p>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF (Máx. 5MB) - También puedes pegar imágenes en el texto</p>
-                            </div>
-                            <input type="file" class="hidden" accept="image/*" wire:model="image"/>
-                        </label>
-                    @endif
-                    <x-input-error :messages="$errors->get('image')" class="mt-1"/>
-                </div>
-            @else
-                <div class="bg-[#251a34] shadow-lg p-4 rounded-lg flex justify-between">
-                    <p class="text-white">{{$answer_content}}</p>
-                </div>
-                @if($image)
-                    <img src="{{ $image->temporaryUrl() }}" class="mt-2 max-w-full h-48 object-cover rounded-lg"/>
-                @endif
-            @endif
+    @if ($question->status === \App\Enums\QuestionStatusEnum::OPEN)
+        <div class="space-y-3 pt-2 border-t border-line">
+            <textarea wire:model="answer_content" maxlength="3000" id="answer-textarea"
+                      rows="4"
+                      class="w-full px-3.5 py-2.5 text-ink bg-panel-muted border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand placeholder:text-ink-faint transition-colors"
+                      placeholder="Tu respuesta..."></textarea>
+            <x-input-error :messages="$errors->get('answer_content')" />
+
+            <div class="flex justify-end gap-2 pt-1">
+                <x-danger-button wire:click="ignore">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
+                    Ignorar
+                </x-danger-button>
+                <x-primary-button type="submit">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.75 14.25m0 0 2.91 8.73a2.25 2.25 0 0 0 2.13 1.52h7.42a2.25 2.25 0 0 0 2.13-1.52l2.91-8.73M3.75 14.25h16.5"/>
+                    </svg>
+                    Responder
+                </x-primary-button>
+            </div>
         </div>
-        @if($question->status === \App\Enums\QuestionStatusEnum::ANSWERED)
-            <div class="text-sm text-green-600 text-right">
-                Pregunta respondida
-            </div>
-        @elseif($question->status === \App\Enums\QuestionStatusEnum::IGNORED)
-            <div class="text-sm text-red-600 text-right">
-                Pregunta ignorada
-            </div>
-        @else
-            <div class="flex justify-end space-x-2">
-                <x-danger-button wire:click="ignore">Ignorar</x-danger-button>
-                <x-primary-button type="submit">Responder</x-primary-button>
-            </div>
-        @endif
-    </form>
+    @elseif ($question->status === \App\Enums\QuestionStatusEnum::ANSWERED)
+        <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-line">
+            <span class="chip-success">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                </svg>
+                Respondida
+            </span>
+        </div>
+    @elseif ($question->status === \App\Enums\QuestionStatusEnum::IGNORED)
+        <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-line">
+            <span class="chip-error">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+                Ignorada
+            </span>
+        </div>
+    @endif
 </div>
-
-<script>
-    document.addEventListener('livewire:init', () => {
-        const textarea = document.getElementById('answer-textarea');
-        
-        if (textarea) {
-            textarea.addEventListener('paste', (e) => {
-                const items = e.clipboardData?.items;
-                
-                if (items) {
-                    for (let i = 0; i < items.length; i++) {
-                        if (items[i].type.indexOf('image') !== -1) {
-                            e.preventDefault();
-                            
-                            const file = items[i].getAsFile();
-                            const maxSize = 5 * 1024 * 1024;
-                            
-                            if (file.size > maxSize) {
-                                alert('La imagen no puede ser mayor a 5MB');
-                                return;
-                            }
-                            
-                            const dataTransfer = new DataTransfer();
-                            dataTransfer.items.add(file);
-                            
-                            const fileInput = document.querySelector('input[type="file"][wire\\:model="image"]');
-                            if (fileInput) {
-                                fileInput.files = dataTransfer.files;
-                                fileInput.dispatchEvent(new Event('change'));
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    });
-</script>
