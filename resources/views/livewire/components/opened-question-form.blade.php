@@ -69,7 +69,7 @@ $toggleBlur = function () {
     </div>
 
     @if ($question->status === \App\Enums\QuestionStatusEnum::OPEN)
-        <div class="space-y-3 pt-2 border-t border-line">
+        <form wire:submit="submit" class="space-y-3 pt-2 border-t border-line">
             <textarea wire:model="answer_content" maxlength="3000" id="answer-textarea"
                       rows="4"
                       class="w-full px-3.5 py-2.5 text-ink bg-panel-muted border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand placeholder:text-ink-faint transition-colors"
@@ -77,7 +77,7 @@ $toggleBlur = function () {
             <x-input-error :messages="$errors->get('answer_content')" />
 
             <div class="flex justify-end gap-2 pt-1">
-                <x-danger-button wire:click="ignore">
+                <x-danger-button type="button" wire:click="ignore">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/>
                     </svg>
@@ -90,7 +90,7 @@ $toggleBlur = function () {
                     Responder
                 </x-primary-button>
             </div>
-        </div>
+        </form>
     @elseif ($question->status === \App\Enums\QuestionStatusEnum::ANSWERED)
         <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-line">
             <span class="chip-success">
