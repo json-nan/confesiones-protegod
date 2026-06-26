@@ -46,14 +46,17 @@ $submit = function () {
 
     <form wire:submit.prevent="submit" class="space-y-4">
         <div>
-            <x-input-label for="title" value="Título" />
-            <x-text-input wire:model="title" id="title" class="block w-full mt-1.5" type="text" maxlength="200" placeholder="Dale un nombre a tu secreto..." />
+            <div class="flex items-center justify-between">
+                <x-input-label for="title" value="Título" />
+                <span class="text-xs text-ink-faint tabular-nums" x-text="($wire.title || '').length + ' / 200'"></span>
+            </div>
+            <x-text-input wire:model.live="title" id="title" class="block w-full mt-1.5" type="text" maxlength="200" placeholder="Dale un nombre a tu secreto..." />
             <x-input-error :messages="$errors->get('title')" class="mt-1.5" />
         </div>
         <div>
             <div class="flex items-center justify-between">
                 <x-input-label for="content" value="Contenido" />
-                <span class="text-xs text-ink-faint tabular-nums" x-data="{ c: $wire.content }" x-text="c.length + ' / 10000'"></span>
+                <span class="text-xs text-ink-faint tabular-nums" x-text="($wire.content || '').length + ' / 10000'"></span>
             </div>
             <x-textarea-input wire:model.live="content" id="content" class="block w-full mt-1.5" rows="6" maxlength="10000" placeholder="Desahógate... el gato no juzga(la mayoría de las veces)" />
             <x-input-error :messages="$errors->get('content')" class="mt-1.5" />
