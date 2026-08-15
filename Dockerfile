@@ -86,7 +86,9 @@ COPY --from=vendor --chown=www-data:www-data /app/bootstrap/cache ./bootstrap/ca
 COPY --from=assets --chown=www-data:www-data /app/public/build ./public/build
 
 COPY docker/Caddyfile /etc/frankenphp/Caddyfile
-COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/entrypoint
+# chmod via RUN rather than COPY --chmod so the build does not depend on
+# BuildKit — some CI and PaaS builders still fall back to the legacy builder.
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 
 # Runtime state directories are excluded from the build context, so recreate
 # the tree the framework expects and hand it to the unprivileged user.
@@ -100,6 +102,7 @@ RUN mkdir -p \
         bootstrap/cache \
     && mkdir -p /data/caddy /config/caddy \
     && chown -R www-data:www-data storage bootstrap/cache /data/caddy /config/caddy \
+    && chmod 755 /usr/local/bin/entrypoint \
     && setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp
 
 USER www-data
