@@ -3,7 +3,7 @@
 use function Livewire\Volt\{state};
 
 state([
-    'questions' => fn() => \App\Models\Question::with('answers')->answered()->latest('updated_at')->get(),
+    'questions' => fn() => \App\Models\Question::with('answers', 'audio')->answered()->latest('updated_at')->get(),
 ]);
 
 ?>
@@ -16,6 +16,8 @@ state([
                 <time class="chip-muted whitespace-nowrap">{{ $question->created_at->diffForHumans() }}</time>
             </div>
             <p class="text-ink-muted whitespace-pre-line leading-relaxed">{{ $question->content }}</p>
+
+            <livewire:components.question-audio :question="$question" :key="'audio-'.$question->id" />
 
             <div class="space-y-3 pt-2 border-t border-line">
                 @foreach ($question->answers as $answer)

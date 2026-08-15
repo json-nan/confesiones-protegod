@@ -3,7 +3,7 @@
 use function Livewire\Volt\{state};
 
 state([
-    'questions' => fn() => \App\Models\Question::open()->latest('updated_at')->get(),
+    'questions' => fn() => \App\Models\Question::with('audio')->open()->latest('updated_at')->get(),
 ]);
 
 ?>

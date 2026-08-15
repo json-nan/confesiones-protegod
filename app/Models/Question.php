@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Question extends Model
 {
@@ -18,9 +19,24 @@ class Question extends Model
         'status' => QuestionStatusEnum::class,
     ];
 
+    protected static function booted(): void
+    {
+        // The foreign key cascade clears the row, but object storage has no
+        // idea the question is gone — drop the mp3 before the row that names
+        // it disappears.
+        static::deleting(function (self $question) {
+            $question->audio?->discardObject();
+        });
+    }
+
     public function answers(): HasMany
     {
         return $this->hasMany(Answer::class);
+    }
+
+    public function audio(): HasOne
+    {
+        return $this->hasOne(QuestionAudio::class);
     }
 
     public function scopeAnswered($query)

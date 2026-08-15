@@ -60,6 +60,30 @@ return [
             'report' => false,
         ],
 
+        /*
+        | Cloudflare R2 — where generated TTS audio lives. The bucket stays
+        | private and playback runs on pre-signed URLs, so the browser pulls
+        | the mp3 straight from R2 and the bytes never transit this container.
+        |
+        | R2 has no regions: 'auto' is the literal value its S3 API expects.
+        | Path-style addressing matches the account-scoped endpoint form
+        | https://<account-id>.r2.cloudflarestorage.com.
+        */
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => 'auto',
+            'bucket' => env('R2_BUCKET'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+
+            // Unlike the disks above, a silent false on upload here would let
+            // the app record an audio row pointing at nothing.
+            'throw' => true,
+            'report' => false,
+        ],
+
     ],
 
     /*

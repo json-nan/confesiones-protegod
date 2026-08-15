@@ -14,7 +14,8 @@ RUN apk add --no-cache libcap curl \
         pcntl \
         intl \
         zip \
-        pdo_sqlite
+        pdo_sqlite \
+        simplexml
 
 # The base image only lays down php.ini via its own entrypoint, which this
 # image replaces — so put the production baseline in place explicitly. Files

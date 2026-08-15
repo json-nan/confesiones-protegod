@@ -68,6 +68,8 @@ $toggleBlur = function () {
         </div>
     </div>
 
+    <livewire:components.question-audio :question="$question" :key="'audio-'.$question->id" />
+
     @if ($question->status === \App\Enums\QuestionStatusEnum::OPEN)
         <form wire:submit="submit" class="space-y-3 pt-2 border-t border-line">
             <textarea wire:model="answer_content" maxlength="3000" id="answer-textarea"
