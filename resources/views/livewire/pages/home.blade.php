@@ -2,14 +2,38 @@
 
 use Mary\Traits\Toast;
 use App\Models\Question;
-use function Livewire\Volt\{state, layout, uses};
+use function Livewire\Volt\{state, layout, with};
 
 layout('layouts.guest');
 
+// Batch size is inlined rather than pulled out into a const: Volt compiles
+// this block to file scope, so a const would be redefined on every render.
+state(['perPage' => 10]);
 
-state([
-    'questions' => fn() => Question::with('answers')->answered()->latest('updated_at')->get(),
-]);
+$loadMore = function () {
+    $this->perPage += 10;
+};
+
+// Deliberately resolved through with() rather than state(): as component state
+// the whole collection would be serialised into the Livewire payload on every
+// interaction. Here it is rebuilt per request and only `perPage` travels.
+//
+// The window always starts at the newest question instead of using an offset,
+// because Answer::$touches bumps a question's updated_at — an offset would
+// skip or repeat rows whenever the ordering shifts between clicks.
+with(function () {
+    $total = Question::answered()->count();
+
+    return [
+        'total' => $total,
+        'hasMore' => $this->perPage < $total,
+        'questions' => Question::with('answers')
+            ->answered()
+            ->latest('updated_at')
+            ->take($this->perPage)
+            ->get(),
+    ];
+});
 
 ?>
 
@@ -42,7 +66,7 @@ state([
     <section class="space-y-5">
         <div class="flex items-center justify-between">
             <h2 class="font-display font-bold text-ink text-xl">Confesiones recientes</h2>
-            <span class="chip-muted">{{ $questions->count() }} respuestas</span>
+            <span class="chip-muted">{{ $total }} respuestas</span>
         </div>
 
         @forelse ($questions as $question)
@@ -83,5 +107,28 @@ state([
                 <p class="text-ink-muted text-sm">Sé el primero en escribirle al gato.</p>
             </div>
         @endforelse
+
+        @if ($hasMore)
+            <div class="flex flex-col items-center gap-3 pt-2">
+                <x-secondary-button wire:click="loadMore" wire:target="loadMore" wire:loading.attr="disabled"
+                                    class="w-full sm:w-auto justify-center">
+                    <svg wire:loading.remove wire:target="loadMore" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                    <svg wire:loading wire:target="loadMore" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+                        <path class="opacity-90" fill="currentColor" d="M12 2a10 10 0 0 1 10 10h-3a7 7 0 0 0-7-7V2Z"/>
+                    </svg>
+                    <span wire:loading.remove wire:target="loadMore">Cargar más</span>
+                    <span wire:loading wire:target="loadMore">Cargando…</span>
+                </x-secondary-button>
+
+                <p class="text-xs text-ink-faint" aria-live="polite">
+                    Mostrando {{ $questions->count() }} de {{ $total }}
+                </p>
+            </div>
+        @endif
     </section>
 </div>

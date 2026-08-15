@@ -11,7 +11,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Behind a TLS-terminating proxy the app only learns the original
+        // scheme from X-Forwarded-*, which Laravel ignores until the proxy is
+        // trusted. Set TRUSTED_PROXIES to '*' when the container is only
+        // reachable through that proxy, or to a comma-separated IP list.
+        $proxies = env('TRUSTED_PROXIES');
+
+        if (filled($proxies)) {
+            $middleware->trustProxies(
+                at: $proxies === '*' ? '*' : explode(',', $proxies),
+            );
+        }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

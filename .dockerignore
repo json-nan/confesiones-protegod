@@ -1,0 +1,48 @@
+# Build artifacts and dependencies are produced inside the image
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+
+# Runtime state must never be baked into the image
+/storage/app/public/*
+/storage/app/private/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# Secrets — env comes from the container runtime, never the image
+.env
+.env.*
+!.env.example
+
+# Tooling / editor / VCS
+.git
+.github
+.idea
+.vscode
+.zed
+.fleet
+.nova
+.phpunit.cache
+.phpunit.result.cache
+.phpactor.json
+auth.json
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.DS_Store
+**/.DS_Store
+
+# Not needed at runtime
+/tests
+phpunit.xml
+Dockerfile
+.dockerignore
